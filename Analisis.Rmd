@@ -6,31 +6,64 @@ output:
   pdf_document: default
 ---
 
-```{r setup, include=FALSE}
+## Importar la Data
+
+Para esto es necesario la library "readxl", de ahi creamos la data a un data frame
+siguiente, usamos el "view" para verlo, y el "attach" hara que pongamos la data mas rapido
+
+```{r}
 library(readxl)
-FV_perfiles <- read_excel("~/R/Juan_thesis/FV_perfiles.xlsx", 
+FV_perfiles <- read_excel("FV_perfiles.xlsx", 
                           sheet = "Hoja1")
 View(FV_perfiles)
 attach(FV_perfiles)
 
 ```
 
-## R Markdown
+## Ajustar la data en factores y subsets
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+En ciertas ocaciones la data no esta en factores y puede estar en caracteres 
+o numericos, sera necesario
+convertilo a factores para ciertos analisis estadisticos.
 
-```{r cars}
-cor(Horas_de_Entrenamiento_semanal,Fmax)
+por ejemplo podemos checar la variable "Sexo"
+
+```{r}
+class(FV_perfiles$Sexo)
+```
+De la misma manerera vamos a checar la variable "Deporte"
+
+```{r}
+class(FV_perfiles$Deporte)
 ```
 
-## Including Plots
+En este bonche de codigo recodificamos las variables para que sean "factores" 
+en vez de que sean caracteres o numericas, ya que esto sera necesario para 
+algunos de los tests
+y figuras.
 
-You can also embed plots, for example:
+Para facilitar este proceso necesitamos el paquete tidyverse o dplyr que nos
+permitiran manipular la data.
+Mutate significa que transformaremos la data, recode_factor significa que la
+recodificaremos a un factor, finalmente
+definimos los factores, en el caso de "Sexo", "hombre" y "mujer".
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+finalmente el operador %>% nos permite usarlo como una pipa y hacer varios 
+analisis dentro de un argumento.
+
+```{r message=FALSE}
+library(tidyverse)
+FV_perfiles <- FV_perfiles %>%
+  mutate(Sexo=recode_factor(Sexo,Hombre="Hombre",Mujer="Mujer")) %>%
+  mutate(Deporte=recode_factor(Deporte,
+                                 Lucha="Lucha",Judo="Judo")) 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Ahora podemos checar Deporte y Sexo y ver que ya son factores
+
+```{r}
+class(FV_perfiles$Deporte)
+class(FV_perfiles$Sexo)
+```
+
